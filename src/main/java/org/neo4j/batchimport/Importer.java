@@ -24,12 +24,14 @@ public class Importer {
     private static final Map<String, String> SPATIAL_CONFIG = Collections.singletonMap(IndexManager.PROVIDER,"spatial");
     private static Report report;
     private final Config config;
+    private Id id;
     private BatchInserter db;
     private BatchInserterIndexProvider indexProvider;
     Map<String,BatchInserterIndex> indexes=new HashMap<String, BatchInserterIndex>();
 
-    public Importer(File graphDb, final Config config) {
+    public Importer(File graphDb, final Config config, Id id) {
         this.config = config;
+        this.id = id;
         db = createBatchInserter(graphDb, config);
 
         final boolean luceneOnlyIndex = config.isCachedIndexDisabled();
@@ -41,6 +43,7 @@ public class Importer {
                 indexes.put(indexInfo.indexName, index);
             }
         }
+        id.addIndexes(indexes);
 
         report = createReport();
     }
@@ -70,7 +73,7 @@ public class Importer {
             FileUtils.deleteRecursively(graphDb);
         }
 
-        Importer importer = new Importer(graphDb, config);
+        Importer importer = new Importer(graphDb, config, new DefaultId());
         importer.doImport();
     }
 
@@ -96,10 +99,6 @@ public class Importer {
         report.finishImport("Nodes");
     }
 
-    private long lookup(String index,String property,Object value) {
-        return indexFor(index).get(property, value).getSingle();
-    }
-
     private BatchInserterIndex indexFor(String index) {
         return indexes.get(index);
     }
@@ -112,8 +111,8 @@ public class Importer {
 
         while (data.processLine(null)) {
             final Map<String, Object> properties = data.getProperties();
-            final long start = id(data, 0);
-            final long end = id(data, 1);
+            final long start = id.get(data, 0);
+            final long end = id.get(data,1);
             final RelType type = relType.update(data.getTypeLabels()[0]);
             final long id = db.createRelationship(start, end, type, properties);
             for (Map.Entry<String, Map<String, Object>> entry : data.getIndexData().entrySet()) {
@@ -130,14 +129,6 @@ public class Importer {
         return new ChunkerLineData(reader, config.getDelimChar(this), offset);
     }
 
-    private long id(LineData data, int column) {
-        final LineData.Header header = data.getHeader()[column];
-        final Object value = data.getValue(column);
-        if (header.indexName == null) {
-            return id(value);
-        }
-        return lookup(header.indexName, header.name, value);
-    }
 
     void importIndex(String indexName, BatchInserterIndex index, Reader reader) throws IOException {
         final LineData data = createLineData(reader, 1);

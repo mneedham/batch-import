@@ -36,7 +36,7 @@ public class ImporterTest {
 
         final Map<String, String> configData = Config.config("batch.properties");
         new IndexInfo("node_index", "index-a", "exact", null).addToConfig(configData);
-        importer = new Importer(File.createTempFile("test", "db"), new Config(configData)) {
+        importer = new Importer(File.createTempFile("test", "db"), new Config(configData), new DefaultId()) {
             @Override
             protected BatchInserter createBatchInserter(File graphDb, Config config) {
                 return inserter;
