@@ -73,7 +73,28 @@ public class Importer {
             FileUtils.deleteRecursively(graphDb);
         }
 
-        Importer importer = new Importer(graphDb, config, new DefaultId());
+        Collection<File> nodesFiles = config.getNodesFiles();
+        boolean usesCustomId = false;
+        for (File nodesFile : nodesFiles) {
+            Scanner scanner = new Scanner(nodesFile);
+            if(scanner.hasNextLine()) {
+                String[] headerRow = scanner.nextLine().split("\t");
+                if(Arrays.asList(headerRow).contains("id")) {
+                    usesCustomId = true;
+                }
+
+            }
+        }
+
+        Importer importer;
+        if(usesCustomId) {
+            importer = new Importer(graphDb, config, new CustomId());
+        } else {
+            importer = new Importer(graphDb, config, new DefaultId());
+        }
+
+
+
         importer.doImport();
     }
 
@@ -87,7 +108,14 @@ public class Importer {
         final LineData data = createLineData(reader, 0);
         report.reset();
         while (data.processLine(null)) {
-            final long id = db.createNode(data.getProperties());
+            Map<String, Object> properties = data.getProperties();
+
+            final long id = db.createNode(properties);
+
+            if(properties.containsKey("id")) {
+                this.id.addMapping(properties.get("id"), id);
+            }
+
             for (Map.Entry<String, Map<String, Object>> entry : data.getIndexData().entrySet()) {
                 final BatchInserterIndex index = indexFor(entry.getKey());
                 if (index==null)

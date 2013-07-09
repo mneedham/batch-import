@@ -7,5 +7,6 @@ import java.util.Map;
 public interface Id {
     long get(LineData data, int column);
     void addIndexes(Map<String, BatchInserterIndex> indexes);
+    void addMapping(Object id, long nodeId);
 }
 
