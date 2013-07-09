@@ -6,7 +6,6 @@
 *.iml
 .idea
 target
-*.csv
 .DS_Store
 .settings
 *.gz
