@@ -1,0 +1,23 @@
+-------
+With ID
+-------
+Importing 1000001 Nodes took 3 seconds 
+Importing 1000000 Relationships took 2 seconds 
+Total import time: 6 seconds 
+
+Importing 10000001 Nodes took 29 seconds 
+Importing 10000000 Relationships took 16 seconds 
+Total import time: 48 seconds 
+
+
+----------
+Without ID
+----------
+Importing 1000001 Nodes took 1 seconds 
+Importing 1000000 Relationships took 1 seconds 
+Total import time: 4 seconds 
+
+
+Importing 10000001 Nodes took 9 seconds 
+Importing 10000000 Relationships took 15 seconds 
+Total import time: 26 seconds 
