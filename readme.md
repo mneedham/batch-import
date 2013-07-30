@@ -15,14 +15,13 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
 2. Create a nodes.csv file which contains a list of the nodes to import. The first row should be a header which describes the properties of the nodes.
 
     ```
-    echo -e "name:string:users,age,works_on\nb8bd1c77-2732-4687-96b3-fa2c9f25e303,Michael,37,neo4j\nac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14" > nodes.csv
+    echo -e "name:string:users\tname\tage\tworks_on\nb8bd1c77-2732-4687-96b3-fa2c9f25e303\tMichael\t37\tneo4j\nac80bc1f-d8e8-40f0-9b53-af731c635796\tSelina\t14\t" > nodes.csv
     ```
 
     ```
-    cat nodes.csv
-    userId:string:users,name,age,works_on
-    b8bd1c77-2732-4687-96b3-fa2c9f25e303,Michael,37,neo4j
-    ac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14
+    name:string:users   name    age works_on
+    b8bd1c77-2732-4687-96b3-fa2c9f25e303    Michael 37  neo4j
+    ac80bc1f-d8e8-40f0-9b53-af731c635796    Selina  14
     ```
 
     We include one field which is a bit different than the others *userId:string:users* for which an index named *users* with key *userId* is created. Each node in the file will have an entry in the index keyed on their *userId* value. This type of field is particularly useful when we want to reference nodes using identifiers from other systems.
@@ -30,13 +29,13 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
 3. Create a relationships.csv file which contains relationships between nodes. The first row should be a header and the first 3 fields describe *from node*, *to node* and *relationship type*. Any other fields are treated as properties on the relationship.
 
     ```
-    echo -e "userId:string:users,userId:string:users,type,since,counter:int\nb8bd1c77-2732-4687-96b3-fa2c9f25e303,ac80bc1f-d8e8-40f0-9b53-af731c635796,FATHER_OF,1998-07-10,1" > relationships.csv
+    echo -e "userId:string:users\tuserId:string:users\ttype\tsince\tcounter:int\nb8bd1c77-2732-4687-96b3-fa2c9f25e303\tac80bc1f-d8e8-40f0-9b53-af731c635796\tFATHER_OF\t1998-07-10\t1" > relationships.csv
     ```
 
     ```
     cat relationships.csv
-    userId:string:users,userId:string:users,type,since,counter:int
-    b8bd1c77-2732-4687-96b3-fa2c9f25e303,ac80bc1f-d8e8-40f0-9b53-af731c635796,FATHER_OF,1998-07-10,1
+    userId:string:users userId:string:users type    since   counter:int
+    b8bd1c77-2732-4687-96b3-fa2c9f25e303    ac80bc1f-d8e8-40f0-9b53-af731c635796    FATHER_OF   1998-07-10  1
     ````
 
 4. Run the batch importer tool against our store with these nodes and relationships files:
@@ -51,18 +50,27 @@ In the usage scenario described above we index our nodes and then query those in
 
 For example, our nodes.csv file would look like this:
 
-    name,age,works_on
-    Michael,37,neo4j
-    Selina,,14
+    name    age works_on
+    Michael 37  neo4j
+    Selina  14
 
 *Michael* would be referred to by the identifier 1 (row 1) and *Selina* by the identifier 2 (row 2) which means our relationships.csv file would now look like this:
 
     cat relationships.csv
-    from,to,type,since,counter:int
-    1,2,FATHER_OF,1998-07-10,1
+    from to type    since   counter:int
+    1    2    FATHER_OF   1998-07-10  1
 
 The disadvantage of this approach is that you need to track a global identifier across your import code but it might be worth it if you have a huge amount of data.
 
+## More examples
+
+A further example is included in the `sample` directory and can be imported by running `sh sample/import.sh` from the root directory.
+
+Max De Marzi has written a blog series showing his experiences using batch import:
+
+* [Part 1](http://maxdemarzi.com/2012/02/28/batch-importer-part-1/)
+* [Part 2](http://maxdemarzi.com/2012/02/28/batch-importer-part-2/)
+* [Part 3](http://maxdemarzi.com/2012/07/02/batch-importer-part-3/)
 
 ## Building Manually
 
@@ -79,19 +87,9 @@ That will create a JAR file in the 'target' directory:
 
 You can then use that JAR as per the [usage section](#usage).
 
-## More examples
+## Technical Details
 
-A further example is included in the `sample` directory and can be imported by running `sh sample/import.sh` from the root directory.
-
-Max De Marzi has written a blog series showing his experiences using batch import:
-
-* [Part 1](http://maxdemarzi.com/2012/02/28/batch-importer-part-1/)
-* [Part 2](http://maxdemarzi.com/2012/02/28/batch-importer-part-2/)
-* [Part 3](http://maxdemarzi.com/2012/07/02/batch-importer-part-3/)
-
-## 
-
-## File format
+### File format
 
 * **tab separated** csv files
 * Property names in first row.
