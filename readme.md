@@ -47,7 +47,7 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
 
 ## For even quicker import
 
-In the usage scenario described above we index our nodes and then query those indexes when creating relationships between nodes. While this imports data quickly we can get a speed improvement when importing into an empty database by making use of the row number in the nodes file as our identifier.
+In the usage scenario described above we index our nodes and then query those indexes when creating relationships between nodes. While this imports data quickly we can get a speed improvement when importing into an empty database by using the row number in the nodes file as our node identifier.
 
 For example, our nodes.csv file would look like this:
 
