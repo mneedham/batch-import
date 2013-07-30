@@ -1,25 +1,49 @@
-# Neo4j (CSV) Batch Importer
+# Neo4j CSV Batch Importer
 
-This software is licensed under the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) for now. 
-You can ask [Neo Technology](http://neotechnology.com) about a different licensing agreement.
+The Neo4j Batch Importer is a tool used to load large amounts of data (i.e. millions of nodes and relationships) into a [neo4j](http://www.neo4j.org/) database.
 
-You provide one **tab separated** csv file for nodes and one for relationships (optionally more for indexes)
+## Installation
 
-Example data for the files is a small family network
+Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/batch-import/batch-import-full-1.9.jar):
 
-## File format
+    mkdir my-import-project 
+    cd my-import-project
+    curl http://dist.neo4j.org.s3.amazonaws.com/jexp/batch-import/batch-import-full-1.9.jar -o batch-import-full-1.9.jar
 
-* **tab separated** csv files
-* Property names in first row.
-* If only one file is initially imported, the row number corresponds to the node-id (node 0 is the reference node)
-* Property values not listed will not be set on the nodes or relationships.
-* Optionally property fields can have a type (defaults to String) indicated with name:type where type is one of (int, long, float, double, boolean, byte, short, char, string). The string value is then converted to that type. Conversion failure will result in abort of the import operation.
-* Property fields may also be arrays by adding "_array" to the types above and separating the data with commas.
-* for non-ascii characters make sure to add `-Dfile.encoding=UTF-8` to the commandline arguments
-* Optionally automatic indexing of properties can be configured with a header like `name:string:users` and a configured index in `batch.properties` like `batch_import.node_index=exact`
-  then the property `name` will be indexed in the `users` index for each row with a value there
-* multiple files for nodes and rels, comma separated, without spaces like "node1.csv,node2.csv"
-* csv files can be zipped individually as *.gz or *.zip
+## Usage
+
+1. Ensure that your neo4j server is stopped (the batch import deals with store files directly so your database will get corrupted if you don't follow this step)
+2. Create two CSV files:
+
+* nodes.csv - containing the nodes to import
+
+e.g. 
+
+````
+echo -e "name:string:users,age,works_on\nb8bd1c77-2732-4687-96b3-fa2c9f25e303,Michael,37,neo4j\nac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14" > nodes.csv
+````
+
+````
+cat nodes.csv
+userId:string:users,name,age,works_on
+b8bd1c77-2732-4687-96b3-fa2c9f25e303,Michael,37,neo4j
+ac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14
+````
+
+The first row of the file is a header which describes the properties of the node. In this case our nodes have a name, age and product that they work on. We also include a special field 'userId:string:users' for which an index named 'users' with key 'userId' is created. This type of field is particularly useful when we want to use external identifiers from other systems when importing data into neo4j.
+
+* relationships.csv - containing relationships between the nodes
+
+Run the batch importer tool against those two files:
+
+    java -jar batch-import-full-1.9.jar /path/to/neo4j/data/graph.db nodes.csv relationships.csv
+
+
+## For even quicker import
+
+
+
+# Other details
 
 ## Examples
 
@@ -42,8 +66,25 @@ There is also a `sample` directory, please run from the main directory `sh sampl
     3     4   SISTER_OF 2008-05-03  5
     2     3   SISTER_OF 2007-09-15  7
 
+## File format
 
-## Execution
+* **tab separated** csv files
+* Property names in first row.
+* If only one file is initially imported, the row number corresponds to the node-id (node 0 is the reference node)
+* Property values not listed will not be set on the nodes or relationships.
+* Optionally property fields can have a type (defaults to String) indicated with name:type where type is one of (int, long, float, double, boolean, byte, short, char, string). The string value is then converted to that type. Conversion failure will result in abort of the import operation.
+* Property fields may also be arrays by adding "_array" to the types above and separating the data with commas.
+* for non-ascii characters make sure to add `-Dfile.encoding=UTF-8` to the commandline arguments
+* Optionally automatic indexing of properties can be configured with a header like `name:string:users` and a configured index in `batch.properties` like `batch_import.node_index=exact`
+  then the property `name` will be indexed in the `users` index for each row with a value there
+* multiple files for nodes and rels, comma separated, without spaces like "node1.csv,node2.csv"
+* csv files can be zipped individually as *.gz or *.zip
+
+
+## Manual Build & Install
+    
+    $ mvn clean compile assembly:single
+
 
     mvn clean compile exec:java -Dexec.mainClass="org.neo4j.batchimport.Importer" -Dexec.args="neo4j/data/graph.db nodes.csv rels.csv"
     
@@ -290,3 +331,8 @@ with 35 ECU, 60GB RAM, 2TB SSD writing up to 500MB/s, resulting in a store of 1.
 * use id-compression internally to save memory in structs (write a CompressedLongArray)
 * reuse PropertyBlock, PropertyRecords, RelationshipRecords, NodeRecords, probably subclass them and override getId() etc. or copy the code
   from the Store's to work with interfaces
+
+## Licensing Information
+
+This software is licensed under the [GPLv3](http://www.gnu.org/licenses/gpl-3.0.en.html) for now. 
+You can ask [Neo Technology](http://neotechnology.com) about a different licensing agreement.  
