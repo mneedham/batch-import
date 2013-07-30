@@ -42,7 +42,7 @@ Run the batch importer tool against those two files:
 
 ## Building Manually
 
-batch-import uses Maven which you can use to generate the latest version of the batch import tool:
+batch-import uses Maven which you can use to generate the latest version:
 
     git clone git@github.com:jexp/batch-import.git
     cd batch-import
