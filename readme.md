@@ -76,9 +76,18 @@ There is also a `sample` directory, please run from the main directory `sh sampl
 * csv files can be zipped individually as *.gz or *.zip
 
 
-## Manual Build & Install
-    
-    $ mvn clean compile assembly:single
+## Building Manually
+
+batch-import uses Maven which you can use to generate the latest version of the batch import tool:
+
+    git clone git@github.com:jexp/batch-import.git
+    cd batch-import
+    mvn clean compile assembly:single
+
+That will generate a JAR file in target/:
+
+    $ ls -alh target/batch-import-jar-with-dependencies.jar
+-rw-r--r--  1 markneedham  staff    23M 30 Jul 14:49 target/batch-import-jar-with-dependencies.jar
 
 
     mvn clean compile exec:java -Dexec.mainClass="org.neo4j.batchimport.Importer" -Dexec.args="neo4j/data/graph.db nodes.csv rels.csv"
