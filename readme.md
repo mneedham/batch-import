@@ -99,9 +99,9 @@ You can then use that JAR as per the [usage section](#usage).
 
 ### File format
 
-* **tab separated** csv files
-* Property names in first row.
-* If only one file is initially imported, the row number corresponds to the node-id (node 0 is the reference node)
+* The CSV files should be **tab separated**.
+* The first row of the file defines property names.
+* If only one file is initially imported, the row number corresponds to the node-id (node 0 is the reference node). See the [Even quicker import](#even-quicker-import) section for more details.
 * Property values not listed will not be set on the nodes or relationships.
 * Optionally property fields can have a type (defaults to String) indicated with name:type where type is one of (int, long, float, double, boolean, byte, short, char, string). The string value is then converted to that type. The import operation will abort if it can't cast the data type.
 * Property fields may also be arrays by adding "_array" to the types above and separating the data with commas.
