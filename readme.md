@@ -84,56 +84,12 @@ batch-import uses Maven which you can use to generate the latest version of the 
     cd batch-import
     mvn clean compile assembly:single
 
-That will generate a JAR file in target/:
+That will generate a JAR file in the 'target' directory:
 
     $ ls -alh target/batch-import-jar-with-dependencies.jar
     -rw-r--r--  1 markneedham  staff    23M 30 Jul 14:49 target/batch-import-jar-with-dependencies.jar
 
-<!-- empty -->
-
-    mvn clean compile exec:java -Dexec.mainClass="org.neo4j.batchimport.Importer" -Dexec.args="neo4j/data/graph.db nodes.csv rels.csv"
-    
-    or
-    
-    java -server -Dfile.encoding=UTF-8 -Xmx4G -jar ../batch-import/target/batch-import-jar-with-dependencies.jar neo4j/data/graph.db nodes.csv rels.csv
-
-
-    ynagzet:batchimport mh$ rm -rf target/db
-    ynagzet:batchimport mh$ mvn clean compile assembly:single
-    [INFO] Scanning for projects...
-    [INFO] ------------------------------------------------------------------------
-    [INFO] Building Simple Batch Importer
-    [INFO]    task-segment: [clean, compile, assembly:single]
-    [INFO] ------------------------------------------------------------------------
-    ...
-    [INFO] Building jar: /Users/mh/java/neo/batchimport/target/batch-import-jar-with-dependencies.jar
-    [INFO] ------------------------------------------------------------------------
-    [INFO] BUILD SUCCESSFUL
-    [INFO] ------------------------------------------------------------------------
-    ynagzet:batchimport mh$ java -server -Xmx4G -jar target/batch-import-jar-with-dependencies.jar target/db nodes.csv rels.csv
-    Physical mem: 16384MB, Heap size: 3640MB
-    use_memory_mapped_buffers=false
-    neostore.propertystore.db.index.keys.mapped_memory=5M
-    neostore.propertystore.db.strings.mapped_memory=100M
-    neostore.propertystore.db.arrays.mapped_memory=215M
-    neo_store=/Users/mh/java/neo/batchimport/target/db/neostore
-    neostore.relationshipstore.db.mapped_memory=1000M
-    neostore.propertystore.db.index.mapped_memory=5M
-    neostore.propertystore.db.mapped_memory=1000M
-    dump_configuration=true
-    cache_type=none
-    neostore.nodestore.db.mapped_memory=200M
-    ...........................................................................
-    Importing 7500000 Nodes took 17 seconds
-    ....................................................................................................35818 ms
-    ....................................................................................................39343 ms
-    ....................................................................................................41788 ms
-    ....................................................................................................48897 ms
-    ............
-    Importing 41246740 Relationships took 170 seconds
-    212 seconds
-    ynagzet:batchimport mh$ du -sh target/db/
-    3,2G	target/db/
+You can then use that JAR as per the usage section.
 
 ## Parameters
 
