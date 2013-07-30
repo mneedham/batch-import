@@ -19,7 +19,7 @@ e.g.
 
     echo -e "name:string:users,age,works_on\nb8bd1c77-2732-4687-96b3-fa2c9f25e303,Michael,37,neo4j\nac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14" > nodes.csv
 
-<!-- emp -->
+<!-- empty -->
 
     cat nodes.csv
     userId:string:users,name,age,works_on
@@ -27,7 +27,7 @@ e.g.
     ac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14
 
 
-The first row of the file is a header which describes the properties of the node. In this case our nodes have a name, age and product that they work on. We also include a special field 'userId:string:users' for which an index named 'users' with key 'userId' is created. This type of field is particularly useful when we want to use external identifiers from other systems when importing data into neo4j.
+The first row of the file is a header which describes the properties of the node. These are mostly self explanatory although we do include one special field 'userId:string:users' for which an index named 'users' with key 'userId' is created. This type of field is particularly useful when we want to use external identifiers from other systems when importing data into neo4j.
 
 3. Create a relationships.csv file which contains relationships between nodes.
 
