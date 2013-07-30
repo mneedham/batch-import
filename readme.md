@@ -4,7 +4,7 @@ The Neo4j Batch Importer is a tool used to load large amounts of data (i.e. mill
 
 ## Installation
 
-Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/batch-import/batch-import-full-1.9.jar) to where your import project is:
+Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/batch-import/batch-import-full-1.9.jar) into your import project:
 
     mkdir my-import-project && cd my-import-project
     curl http://dist.neo4j.org.s3.amazonaws.com/jexp/batch-import/batch-import-full-1.9.jar -o batch-import-full-1.9.jar
@@ -40,6 +40,21 @@ Run the batch importer tool against those two files:
 
 # Other details
 
+## Building Manually
+
+batch-import uses Maven which you can use to generate the latest version of the batch import tool:
+
+    git clone git@github.com:jexp/batch-import.git
+    cd batch-import
+    mvn clean compile assembly:single
+
+That will generate a JAR file in the 'target' directory:
+
+    $ ls -alh target/batch-import-jar-with-dependencies.jar
+    -rw-r--r--  1 markneedham  staff    23M 30 Jul 14:49 target/batch-import-jar-with-dependencies.jar
+
+You can then use that JAR as per the [usage section](#usage).
+
 ## Examples
 
 There is also a `sample` directory, please run from the main directory `sh sample/import.sh`
@@ -54,8 +69,8 @@ There is also a `sample` directory, please run from the main directory `sh sampl
 
 ### rels.csv
 
-    start	end	type	    since   counter:int
-    1     2   FATHER_OF	1998-07-10  1
+    start   end type        since   counter:int
+    1     2   FATHER_OF 1998-07-10  1
     1     3   FATHER_OF 2007-09-15  2
     1     4   FATHER_OF 2008-05-03  3
     3     4   SISTER_OF 2008-05-03  5
@@ -74,22 +89,6 @@ There is also a `sample` directory, please run from the main directory `sh sampl
   then the property `name` will be indexed in the `users` index for each row with a value there
 * multiple files for nodes and rels, comma separated, without spaces like "node1.csv,node2.csv"
 * csv files can be zipped individually as *.gz or *.zip
-
-
-## Building Manually
-
-batch-import uses Maven which you can use to generate the latest version of the batch import tool:
-
-    git clone git@github.com:jexp/batch-import.git
-    cd batch-import
-    mvn clean compile assembly:single
-
-That will generate a JAR file in the 'target' directory:
-
-    $ ls -alh target/batch-import-jar-with-dependencies.jar
-    -rw-r--r--  1 markneedham  staff    23M 30 Jul 14:49 target/batch-import-jar-with-dependencies.jar
-
-You can then use that JAR as per the [usage section](#usage).
 
 ## Parameters
 
