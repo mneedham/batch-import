@@ -29,10 +29,11 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
 
 3. Create a relationships.csv file which contains relationships between nodes.
 
-Run the batch importer tool against those two files:
+4. Run the batch importer tool against our nodes and relationships files:
 
+    ````
     java -jar batch-import-full-1.9.jar /path/to/neo4j/data/graph.db nodes.csv relationships.csv
-
+    ````
 
 ## For even quicker import
 
