@@ -38,7 +38,15 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
     b8bd1c77-2732-4687-96b3-fa2c9f25e303    ac80bc1f-d8e8-40f0-9b53-af731c635796    FATHER_OF   1998-07-10  1
     ````
 
-4. Run the batch importer tool against our store with these nodes and relationships files:
+4. Create a *batch.properties* file containing our users index:
+
+    ````
+    cat batch.properties
+    batch_import.node_index.users=exact
+    ````
+
+
+5. Run the batch importer tool against our store with these nodes and relationships files:
 
     ````
     java -jar batch-import-full-1.9.jar /path/to/neo4j/data/graph.db nodes.csv relationships.csv
@@ -95,10 +103,10 @@ You can then use that JAR as per the [usage section](#usage).
 * Property names in first row.
 * If only one file is initially imported, the row number corresponds to the node-id (node 0 is the reference node)
 * Property values not listed will not be set on the nodes or relationships.
-* Optionally property fields can have a type (defaults to String) indicated with name:type where type is one of (int, long, float, double, boolean, byte, short, char, string). The string value is then converted to that type. Conversion failure will result in abort of the import operation.
+* Optionally property fields can have a type (defaults to String) indicated with name:type where type is one of (int, long, float, double, boolean, byte, short, char, string). The string value is then converted to that type. The import operation will abort if it can't cast the data type.
 * Property fields may also be arrays by adding "_array" to the types above and separating the data with commas.
-* for non-ascii characters make sure to add `-Dfile.encoding=UTF-8` to the commandline arguments
-* Optionally automatic indexing of properties can be configured with a header like `name:string:users` and a configured index in `batch.properties` like `batch_import.node_index=exact`
+* If you're using non non-ascii characters add `-Dfile.encoding=UTF-8` to the commandline arguments
+* Automatic indexing of properties can be configured with a header like `name:string:users` and a configured index in `batch.properties` like `batch_import.node_index=exact`
   then the property `name` will be indexed in the `users` index for each row with a value there
 * multiple files for nodes and rels, comma separated, without spaces like "node1.csv,node2.csv"
 * csv files can be zipped individually as *.gz or *.zip
