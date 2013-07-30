@@ -27,7 +27,17 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
 
     We include one field which is a bit different than the others *userId:string:users* for which an index named *users* with key *userId* is created. Each node in the file will have an entry in the index keyed on their *userId* value. This type of field is particularly useful when we want to reference nodes using identifiers from other systems.
 
-3. Create a relationships.csv file which contains relationships between nodes.
+3. Create a relationships.csv file which contains relationships between nodes. The first row should be a header and the first 3 fields describe *from node*, *to node* and *relationship type*. Any other fields are treated as properties on the relationship.
+
+    ```
+    echo -e "userId:string:users,userId:string:users,type,since,counter:int\nb8bd1c77-2732-4687-96b3-fa2c9f25e303,ac80bc1f-d8e8-40f0-9b53-af731c635796,FATHER_OF,1998-07-10,1" > relationships.csv
+    ```
+
+    ```
+    cat relationships.csv
+    userId:string:users,userId:string:users,type,since,counter:int
+    b8bd1c77-2732-4687-96b3-fa2c9f25e303,ac80bc1f-d8e8-40f0-9b53-af731c635796,FATHER_OF,1998-07-10,1
+    ````
 
 4. Run the batch importer tool against our nodes and relationships files:
 
