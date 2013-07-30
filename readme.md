@@ -1,6 +1,6 @@
 # Neo4j CSV Batch Importer
 
-The Neo4j Batch Importer is a tool used to load large amounts of data (i.e. millions of nodes and relationships) into a [neo4j](http://www.neo4j.org/) database.
+The Neo4j Batch Importer is a tool used to quickly load large amounts of data (i.e. millions of nodes and relationships) into a [neo4j](http://www.neo4j.org/) database.
 
 ## Installation
 
@@ -47,45 +47,48 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
 
 ## For even quicker import
 
+In the usage scenario described above we index our nodes and then query those indexes when creating relationships between them. While this imports data quickly we can get a speed improvement when importing into an empty database by making use of the row number in the nodes file as our identifier.
 
+For example, our nodes.csv file would look like this:
 
-# Other details
+    ```    
+    name,age,works_on
+    Michael,37,neo4j
+    Selina,,14
+    ```
+So 'Michael' would be referred to by the identifier 1 (row 1) and Selina by the identifier 2 (row 2) which means our relationships.csv file would now look like this:
+
+    ```
+    cat relationships.csv
+    from,to,type,since,counter:int
+    1,2,FATHER_OF,1998-07-10,1
+    ````
 
 ## Building Manually
 
-batch-import uses Maven which you can use to generate the latest version:
+You can generate the latest version of batch-import by running the following commands:
 
     git clone git@github.com:jexp/batch-import.git
     cd batch-import
     mvn clean compile assembly:single
 
-That will generate a JAR file in the 'target' directory:
+That will create a JAR file in the 'target' directory:
 
     $ ls -alh target/batch-import-jar-with-dependencies.jar
     -rw-r--r--  1 markneedham  staff    23M 30 Jul 14:49 target/batch-import-jar-with-dependencies.jar
 
 You can then use that JAR as per the [usage section](#usage).
 
-## Examples
+## More examples
 
-There is also a `sample` directory, please run from the main directory `sh sample/import.sh`
+A further example is included in the `sample` directory and can be imported by running `sh sample/import.sh` from the root directory.
 
-### nodes.csv
+Max De Marzi has written a 3 part blog series showing his experiences using batch import:
 
-    name    age works_on
-    Michael 37  neo4j
-    Selina  14
-    Rana    6
-    Selma   4
+* [Part 1](http://maxdemarzi.com/2012/02/28/batch-importer-part-1/)
+* [Part 2](http://maxdemarzi.com/2012/02/28/batch-importer-part-2/)
+* [Part 3](http://maxdemarzi.com/2012/07/02/batch-importer-part-3/)
 
-### rels.csv
-
-    start   end type        since   counter:int
-    1     2   FATHER_OF 1998-07-10  1
-    1     3   FATHER_OF 2007-09-15  2
-    1     4   FATHER_OF 2008-05-03  3
-    3     4   SISTER_OF 2008-05-03  5
-    2     3   SISTER_OF 2007-09-15  7
 
 ## File format
 
