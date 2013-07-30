@@ -89,7 +89,7 @@ That will generate a JAR file in the 'target' directory:
     $ ls -alh target/batch-import-jar-with-dependencies.jar
     -rw-r--r--  1 markneedham  staff    23M 30 Jul 14:49 target/batch-import-jar-with-dependencies.jar
 
-You can then use that JAR as per the usage section.
+You can then use that JAR as per the [usage section](#usage).
 
 ## Parameters
 
