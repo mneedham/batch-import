@@ -13,9 +13,7 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
 ## Usage
 
 1. Ensure that your neo4j server is stopped (the batch import deals with store files directly so your database will get corrupted if you don't follow this step)
-2. Create two CSV files:
-
-* nodes.csv - containing the nodes to import
+2. Create a nodes.csv file which contains a list of the nodes to import.
 
 e.g. 
 
@@ -32,7 +30,7 @@ ac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14
 
 The first row of the file is a header which describes the properties of the node. In this case our nodes have a name, age and product that they work on. We also include a special field 'userId:string:users' for which an index named 'users' with key 'userId' is created. This type of field is particularly useful when we want to use external identifiers from other systems when importing data into neo4j.
 
-* relationships.csv - containing relationships between the nodes
+3. Create a relationships.csv file which contains relationships between nodes.
 
 Run the batch importer tool against those two files:
 
