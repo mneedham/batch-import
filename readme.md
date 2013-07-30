@@ -39,7 +39,7 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
     b8bd1c77-2732-4687-96b3-fa2c9f25e303,ac80bc1f-d8e8-40f0-9b53-af731c635796,FATHER_OF,1998-07-10,1
     ````
 
-4. Run the batch importer tool against our nodes and relationships files:
+4. Run the batch importer tool against our store with these nodes and relationships files:
 
     ````
     java -jar batch-import-full-1.9.jar /path/to/neo4j/data/graph.db nodes.csv relationships.csv
