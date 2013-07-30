@@ -61,7 +61,7 @@ For example, our nodes.csv file would look like this:
     cat relationships.csv
     from,to,type,since,counter:int
     1,2,FATHER_OF,1998-07-10,1
-
+    
 The disadvantage of this approach is that you need to track a global identifier across your import code but it might be worth it if you have a huge amount of data.
 
 
