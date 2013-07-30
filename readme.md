@@ -45,7 +45,7 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
     java -jar batch-import-full-1.9.jar /path/to/neo4j/data/graph.db nodes.csv relationships.csv
     ````
 
-## For even quicker import
+## Even quicker import
 
 In the usage scenario described above we index our nodes and then query those indexes when creating relationships between nodes. While this imports data quickly we can get a speed improvement when importing into an empty database by using the row number in the nodes file as our node identifier.
 
@@ -83,12 +83,13 @@ You can then use that JAR as per the [usage section](#usage).
 
 A further example is included in the `sample` directory and can be imported by running `sh sample/import.sh` from the root directory.
 
-Max De Marzi has written a 3 part blog series showing his experiences using batch import:
+Max De Marzi has written a blog series showing his experiences using batch import:
 
 * [Part 1](http://maxdemarzi.com/2012/02/28/batch-importer-part-1/)
 * [Part 2](http://maxdemarzi.com/2012/02/28/batch-importer-part-2/)
 * [Part 3](http://maxdemarzi.com/2012/07/02/batch-importer-part-3/)
 
+## 
 
 ## File format
 
