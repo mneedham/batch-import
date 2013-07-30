@@ -4,10 +4,9 @@ The Neo4j Batch Importer is a tool used to load large amounts of data (i.e. mill
 
 ## Installation
 
-Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/batch-import/batch-import-full-1.9.jar):
+Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/batch-import/batch-import-full-1.9.jar) to where your import project is:
 
-    mkdir my-import-project 
-    cd my-import-project
+    mkdir my-import-project && cd my-import-project
     curl http://dist.neo4j.org.s3.amazonaws.com/jexp/batch-import/batch-import-full-1.9.jar -o batch-import-full-1.9.jar
 
 ## Usage
