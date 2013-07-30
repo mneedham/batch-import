@@ -19,6 +19,7 @@ e.g.
 
     echo -e "name:string:users,age,works_on\nb8bd1c77-2732-4687-96b3-fa2c9f25e303,Michael,37,neo4j\nac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14" > nodes.csv
 
+<!-- emp -->
 
     cat nodes.csv
     userId:string:users,name,age,works_on
