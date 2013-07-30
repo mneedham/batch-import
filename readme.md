@@ -58,11 +58,10 @@ For example, our nodes.csv file would look like this:
     ```
 *Michael* would be referred to by the identifier 1 (row 1) and *Selina* by the identifier 2 (row 2) which means our relationships.csv file would now look like this:
 
-    ```
     cat relationships.csv
     from,to,type,since,counter:int
     1,2,FATHER_OF,1998-07-10,1
-    ````
+
 The disadvantage of this approach is that you need to track a global identifier across your import code but it might be worth it if you have a huge amount of data.
 
 
