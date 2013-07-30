@@ -25,7 +25,7 @@ Download the [batch-import tool](http://dist.neo4j.org.s3.amazonaws.com/jexp/bat
     ac80bc1f-d8e8-40f0-9b53-af731c635796,Selina,,14
     ```
 
-We include one field which is a bit different than the others *userId:string:users* for which an index named *users* with key *userId* is created. Each node in the file will have an entry in the index keyed on their *userId* value. This type of field is particularly useful when we want to reference nodes using identifiers from other systems.
+    We include one field which is a bit different than the others *userId:string:users* for which an index named *users* with key *userId* is created. Each node in the file will have an entry in the index keyed on their *userId* value. This type of field is particularly useful when we want to reference nodes using identifiers from other systems.
 
 3. Create a relationships.csv file which contains relationships between nodes.
 
