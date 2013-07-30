@@ -87,7 +87,7 @@ batch-import uses Maven which you can use to generate the latest version of the 
 That will generate a JAR file in target/:
 
     $ ls -alh target/batch-import-jar-with-dependencies.jar
--rw-r--r--  1 markneedham  staff    23M 30 Jul 14:49 target/batch-import-jar-with-dependencies.jar
+    -rw-r--r--  1 markneedham  staff    23M 30 Jul 14:49 target/batch-import-jar-with-dependencies.jar
 
 
     mvn clean compile exec:java -Dexec.mainClass="org.neo4j.batchimport.Importer" -Dexec.args="neo4j/data/graph.db nodes.csv rels.csv"
