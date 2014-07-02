@@ -23,11 +23,14 @@ import org.neo4j.unsafe.impl.batchimport.store.ChannelReusingFileSystemAbstracti
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
 
 import static org.neo4j.batchimport.Utils.join;
 
 public class Importer {
+    Map<File, Long> offsetByNodeFile = new HashMap<>(  );
+
     private static final String[] NO_LABELS = new String[0];
     public static final int BATCH = 10 * 1000 * 1000;
     private static final int REL_OFFSET = 3;
@@ -102,43 +105,60 @@ public class Importer {
             }
         };
     }
-    Iterable<InputRelationship> inputRelsFromFileIterable(final File file, final Map<String,IndexCache> indexes) {
+    Iterable<InputRelationship> inputRelsFromFileIterable( final File file, final Map<String, IndexCache> indexes,
+                                                           final AtomicLong relationshipId ) {
         return new Iterable<InputRelationship>() {
             @Override
             public Iterator<InputRelationship> iterator() {
-                return inputRelsFromFile(file,indexes);
+                return inputRelsFromFile(file,indexes, relationshipId);
             }
         };
     }
 
+    private String getKey( LineData data )
+    {
+        LineData.Header[] columns = data.getHeader();
+        for ( LineData.Header column : columns )
+        {
+            if(column.indexName != null) {
+                return column.indexName + ":" + column.name;
+            }
+        }
+        throw new RuntimeException( "No index found" );
+    }
+
     private Iterator<InputNode> inputNodesFromFile(final File file) {
         return new Iterator<InputNode>() {
-            final LineData data = createLineData(createFileReader(file), 0);
+            final LineData data = createLineData( createFileReader( file ), 0 );
+
             boolean hasId = data.hasId();
-            boolean hasNext = data.processLine(null);
-            long id = -1; // todo initial
+            boolean hasNext = data.processLine( null );
+
+            long id = -1 + offsetByNodeFile.get( file ); // todo initial
 
             public boolean hasNext() {
                 return hasNext;
             }
 
             public InputNode next() {
+//                System.out.println(file.getAbsolutePath() + "--" + id);
                 id = hasId ? data.getId() : id+1;
                 Object[] propertyData = data.getPropertyData();
                 InputNode inputNode = new InputNode(id, Arrays.copyOf(propertyData, propertyData.length), null, labelsFor(data.getTypeLabels()), null);
                 hasNext = data.processLine(null);
+                report.dots();
                 return inputNode;
             }
 
             public void remove() { }
         };
     }
-    private Iterator<InputRelationship> inputRelsFromFile(final File file, final Map<String,IndexCache> indexes) {
+    private Iterator<InputRelationship> inputRelsFromFile( final File file, final Map<String, IndexCache> indexes,
+                                                           final AtomicLong relationshipId ) {
         return new Iterator<InputRelationship>() {
-            final LineData data = createLineData(createFileReader(file), REL_OFFSET);
+            final LineData data = createLineData( createFileReader( file ), REL_OFFSET );
             boolean hasId = data.hasId();
             boolean hasNext = data.processLine(null);
-            long id = -1;
             long skipped = 0;
 
             public boolean hasNext() {
@@ -146,7 +166,7 @@ public class Importer {
             }
 
             public InputRelationship next() {
-                id = hasId ? data.getId() : id+1;
+                long id = relationshipId.getAndIncrement();
                 Object[] propertyData = data.getPropertyData();
 
                 final long start = id(data, 0,indexes);
@@ -155,11 +175,16 @@ public class Importer {
                     skipped++; // todo prefetch
                 }
 
+                if(start==-1 ) {
+                    id(data, 0,indexes);
+                    throw new RuntimeException("booom");
+                }
                 InputRelationship relationship = new InputRelationship(id,
                         Arrays.copyOf(propertyData, propertyData.length), null,
                         start,end,
                         data.getRelationshipTypeLabel(), null);
                 hasNext = data.processLine(null);
+                report.dots();
                 return relationship;
             }
 
@@ -226,7 +251,8 @@ public class Importer {
         if (header.indexName == null || header.type == Type.ID) {
             return id(value);
         }
-        return indexes.get(indexName(header)).get(value);
+        IndexCache indexCache = indexes.get( indexName( header ) );
+        return indexCache.get( value );
     }
 
     private String indexName(LineData.Header header) {
@@ -275,6 +301,7 @@ public class Importer {
     private void doImport() throws IOException {
         try {
             final Map<String, IndexCache> indexes = preloadIndexes(config.getNodesFiles());
+            final AtomicLong relationshipId = new AtomicLong( 0 );
             db.doImport(new CombiningIterable<InputNode>(
                new IterableWrapper<Iterable<InputNode>,File>(config.getNodesFiles()) {
                    @Override
@@ -287,7 +314,7 @@ public class Importer {
                  new IterableWrapper<Iterable<InputRelationship>,File>(config.getRelsFiles()) {
                      @Override
                      protected Iterable<InputRelationship> underlyingObjectToObject(File file) {
-                         return inputRelsFromFileIterable(file, indexes);
+                         return inputRelsFromFileIterable(file, indexes, relationshipId);
                      }
                  }
             ),
@@ -300,6 +327,7 @@ public class Importer {
     private Map<String, IndexCache> preloadIndexes(Collection<File> nodesFiles) {
         // check against rel-files if you preload
         Map<String,IndexCache> indexMap=new HashMap<>();
+        long id = 0; // todo initial
         for (File file : nodesFiles) {
             try (Reader reader = createFileReader(file)) {
                 long estimatedLineCount = file.length() / 20;
@@ -310,17 +338,18 @@ public class Importer {
                 if (indexes == null) {
                     continue;
                 }
-                boolean hasId = data.hasId();
-                long id = -1; // todo initial
+//                boolean hasId = data.hasId();
+                offsetByNodeFile.put( file, id );
                 while (data.processLine(null)) {
-                    id = hasId ? data.getId() : id + 1;
+                    id = id + 1;
                     for (int i = 0; i < indexes.length; i++) {
                         IndexCache index = indexes[i];
                         if (index == null) continue;
-                        if (hasId) indexes[i].set(data.getValue(i), id);
-                        else indexes[i].add(data.getValue(i));
+                        indexes[i].add( data.getValue( i ) );
                     }
                 }
+
+                // offset += indexes.length
             } catch(IOException e) {
                 System.err.println("IOError on file " +file+ " "+e.getMessage());
             }
@@ -348,7 +377,7 @@ public class Importer {
             }
             indexes[header.column] = indexCache;
         }
-        return hasIndex ? null : indexes;
+        return hasIndex ? indexes : null;
     }
 
     final static int BUFFERED_READER_BUFFER = 4096*512;
@@ -357,7 +386,7 @@ public class Importer {
         try {
             final String fileName = file.getName();
             if (fileName.endsWith(".gz") || fileName.endsWith(".zip")) {
-                return new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)),BUFFERED_READER_BUFFER));
+                return new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)),BUFFERED_READER_BUFFER), "UTF-8");
             }
             final FileReader fileReader = new FileReader(file);
             return new BufferedReader(fileReader,BUFFERED_READER_BUFFER);

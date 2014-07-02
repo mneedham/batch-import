@@ -8,35 +8,41 @@ import java.util.Arrays;
  */
 public class ArrayBasedIndexCache implements IndexCache {
     private Object[] data;
-    private int offset=0;
+    private int limit =0;
     private String index;
     private int capacity;
+//    private long idOffset;
 
     public ArrayBasedIndexCache(String index,int capacity) {
         this.index = index;
         this.capacity = capacity;
+//        this.idOffset = idOffset;
         data = new Object[capacity];
     }
 
     @Override
     public void add(Object value) {
-        if (offset==capacity) {
+        if ( limit ==capacity) {
             capacity *= 2;
             data = Arrays.copyOf(data, capacity);
         }
-        data[offset++]=value;
+        data[limit++]=value;
     }
 
     @Override
     public void doneInsert() {
-        data = Arrays.copyOf(data,offset); // todo only when capacity >>> offset
-        Arrays.sort(data,0,offset);
+        data = Arrays.copyOf(data, limit ); // todo only when capacity >>> limit
+        Arrays.sort(data,0, limit );
     }
 
     @Override
     public int get(Object value) {
-        int idx = Arrays.binarySearch(data, 0, offset, value);
-        return idx < 0 ? -1 : idx;
+        int idx = Arrays.binarySearch(data, 0, limit, value.toString().trim());
+        // 22fensome@gmail.com
+        // ﻿22fensome@gmail.com
+
+
+        return (idx < 0 ? -1 : idx);
     }
 
     @Override
