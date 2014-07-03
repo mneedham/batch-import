@@ -1,8 +1,23 @@
 package org.neo4j.batchimport;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPInputStream;
+
 import org.neo4j.batchimport.importer.ChunkerLineData;
 import org.neo4j.batchimport.importer.CsvLineData;
-import org.neo4j.batchimport.importer.RelType;
 import org.neo4j.batchimport.importer.Type;
 import org.neo4j.batchimport.index.ArrayBasedIndexCache;
 import org.neo4j.batchimport.index.IndexCache;
@@ -11,7 +26,6 @@ import org.neo4j.helpers.collection.CombiningIterable;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.kernel.DefaultFileSystemAbstraction;
 import org.neo4j.kernel.impl.util.FileUtils;
-import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
 import org.neo4j.unsafe.impl.batchimport.BatchImporter;
 import org.neo4j.unsafe.impl.batchimport.Configuration;
 import org.neo4j.unsafe.impl.batchimport.ParallellBatchImporter;
@@ -20,11 +34,6 @@ import org.neo4j.unsafe.impl.batchimport.input.InputNode;
 import org.neo4j.unsafe.impl.batchimport.input.InputRelationship;
 import org.neo4j.unsafe.impl.batchimport.staging.CoarseUnboundedProgressExecutionMonitor;
 import org.neo4j.unsafe.impl.batchimport.store.ChannelReusingFileSystemAbstraction;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.zip.GZIPInputStream;
 
 import static org.neo4j.batchimport.Utils.join;
 
@@ -77,6 +86,7 @@ public class Importer {
     }
 
     public static void main(String... args) throws IOException {
+
         System.err.println("Usage: Importer data/dir nodes.csv relationships.csv [node_index node-index-name fulltext|exact nodes_index.csv rel_index rel-index-name fulltext|exact rels_index.csv ....]");
         System.err.println("Using: Importer "+join(args," "));
         System.err.println();
@@ -93,7 +103,9 @@ public class Importer {
     }
 
     void finish() {
-//        indexProvider.shutdown();
+        report.sysInfo();
+        report.finish();
+
         db.shutdown();
     }
 
@@ -127,7 +139,7 @@ public class Importer {
         throw new RuntimeException( "No index found" );
     }
 
-    private Iterator<InputNode> inputNodesFromFile(final File file) {
+        private Iterator<InputNode> inputNodesFromFile(final File file) {
         return new Iterator<InputNode>() {
             final LineData data = createLineData( createFileReader( file ), 0 );
 
@@ -197,48 +209,6 @@ public class Importer {
         return Arrays.copyOf(labels,labels.length);
     }
 
-//    private long lookup(String index,String property,Object value) {
-//        Long id = indexFor(index).get(property, value).getSingle();
-//        return id==null ? -1 : id;
-//    }
-
-//    private BatchInserterIndex indexFor(String index) {
-//        return indexes.get(index);
-//    }
-
-    void importRelationships(Reader reader,Map<String,IndexCache> indexes) throws IOException {
-        final int offset = 3;
-        final LineData data = createLineData(reader, offset);
-        final RelType relType = new RelType();
-        long skipped=0;
-        report.reset();
-
-        while (data.processLine(null)) {
-            final Map<String, Object> properties = data.getProperties();
-            final long start = id(data, 0,indexes);
-            final long end = id(data, 1, indexes);
-            if (start==-1 || end==-1) {
-                skipped++;
-                continue;
-            }
-            final RelType type = relType.update(data.getRelationshipTypeLabel());
-//            final long id = db.createRelationship(start, end, type, properties);
-//            for (Map.Entry<String, Map<String, Object>> entry : data.getIndexData().entrySet()) {
-//                indexFor(entry.getKey()).add(id, entry.getValue());
-//            }
-            report.dots();
-        }
-        String msg = "Relationships";
-        if (skipped > 0) msg += " skipped (" + skipped + ")";
-        report.finishImport(msg);
-    }
-
-//    private void flushIndexes() {
-//        for (BatchInserterIndex index : indexes.values()) {
-//            index.flush();
-//        }
-//    }
-
     private LineData createLineData(Reader reader, int offset) {
         final boolean useQuotes = config.quotesEnabled();
         if (useQuotes) return new CsvLineData(reader, config.getDelimChar(this),offset);
@@ -259,46 +229,12 @@ public class Importer {
         return header.indexName+":"+header.name;
     }
 
-    void importIndex(String indexName, BatchInserterIndex index, Reader reader) throws IOException {
-        final LineData data = createLineData(reader, 1);
-        report.reset();
-        while (data.processLine(null)) {
-            final Map<String, Object> properties = data.getProperties();
-            index.add(id(data.getValue(0)), properties);
-            report.dots();
-        }
-                
-        report.finishImport("Done inserting into " + indexName + " Index");
-    }
-
-//    private BatchInserterIndex nodeIndexFor(String indexName, String indexType) {
-//        return indexProvider.nodeIndex(indexName, configFor(indexType));
-//    }
-//
-//    private BatchInserterIndex relationshipIndexFor(String indexName, String indexType) {
-//        return indexProvider.relationshipIndex(indexName, configFor(indexType));
-//    }
-
-//    private Map<String, String> configFor(String indexType) {
-//        if (indexType.equalsIgnoreCase("fulltext")) return FULLTEXT_CONFIG;
-//        if (indexType.equalsIgnoreCase("spatial")) return SPATIAL_CONFIG;
-//        return EXACT_CONFIG;
-//    }
-
     private long id(Object id) {
         return Long.parseLong(id.toString());
     }
 
-//    private void importIndex(IndexInfo indexInfo) throws IOException {
-//        File indexFile = new File(indexInfo.indexFileName);
-//        if (!indexFile.exists()) {
-//            System.err.println("Index file "+indexFile+" does not exist");
-//            return;
-//        }
-//        importIndex(indexInfo.indexName, indexes.get(indexInfo.indexName), createFileReader(indexFile));
-//    }
-
     private void doImport() throws IOException {
+        report.sysInfo();
         try {
             final Map<String, IndexCache> indexes = preloadIndexes(config.getNodesFiles());
             final AtomicLong relationshipId = new AtomicLong( 0 );

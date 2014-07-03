@@ -29,9 +29,9 @@ public class TestDataGenerator {
         System.out.println("Using: TestDataGenerator "+nodes+" "+relsPerNode+" "+ Utils.join(types, ",")+" "+(sorted?"sorted":""));
 
         BufferedWriter nodeFile = new BufferedWriter(new FileWriter("nodes.csv"));
-        nodeFile.write("Node\tRels\tProperty\tLabel:label\tCounter:int\n");
+        nodeFile.write("id:string:foo\tRels\tProperty\tLabel:label\tCounter:int\n");
         BufferedWriter relFile = new BufferedWriter(new FileWriter("rels.csv"));
-        relFile.write("Start\tEnde\tType\tProperty\tCounter:long\n");
+        relFile.write("id:string:foo\tid:string:foo\tType\tProperty\tCounter:long\n");
 
         if (sorted) {
             relCount = generateSortedRels(relCount, nodeFile, relFile, nodes, relsPerNode, types);

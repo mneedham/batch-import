@@ -14,4 +14,6 @@ public interface Report {
     void finishImport(String type);
 
     long getCount();
+
+    void sysInfo();
 }

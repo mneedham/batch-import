@@ -170,5 +170,11 @@ public class TestImporter {
         public long getCount() {
             return count;
         }
+
+        @Override
+        public void sysInfo()
+        {
+
+        }
     }
 }

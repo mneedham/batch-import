@@ -103,7 +103,7 @@ public class Config {
         Map<String, String> config = new HashMap<String, String>();
         try {
             if (new File(fileName).exists()) {
-                System.out.println("Using Existing Configuration File");
+                System.out.println("Using config from " + fileName);
             } else {
                 System.out.println("Writing Configuration File to batch.properties");
                 FileWriter fw = new FileWriter(fileName);

@@ -37,6 +37,15 @@ public class StdOutReport implements Report {
     }
 
     @Override
+    public void sysInfo()
+    {
+        Runtime runtime = Runtime.getRuntime();
+        System.out.println( "processors: " + runtime.availableProcessors() );
+        System.out.println("max memory: " + runtime.maxMemory() / (1024 * 1024) + " MB");
+        System.out.println("free memory: " + runtime.freeMemory() / (1024 * 1024) + " MB");
+    }
+
+    @Override
     public void finishImport(String type) {
         System.out.println("\nImporting " + count + " " + type + " took " + (System.currentTimeMillis() - time) / 1000 + " seconds ");
     }
